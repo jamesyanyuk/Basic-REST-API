@@ -30,7 +30,7 @@ router.post('/objects', function(req, res) {
     var obj = req.body;
     var uid = genUID();
     obj.uid = uid;
-
+    
     db.addObject(uid, obj, function(err, object) {
         if(err){
             var error = {
