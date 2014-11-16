@@ -1,15 +1,38 @@
 var express = require('express');
 var router = express.Router();
 
-var scientist = require('scientist');
+var scientist = require('../lib/scientist');
+var db = require('../lib/db');
+
+function genUID() {
+    var uid = Math.random().toString().substr(2, 6);
+    // Check to see that UID doesn't already exist
+    return uid;
+}
 
 router.post('/objects', function(req, res) {
-    // create new scienctist record with unique id
-    // store in database
-    // return record
-    var genUID = Math.random().toString().substr(2, 6);
-    scientist.add(genUID, 'Andrey', 'Kolmogorov', '25 April 1903');
-    res.redirect('/objects/' + genUID);
+    // Check if received data is a JSON object
+    try {
+        JSON.parse(JSON.stringify(req.body));
+        if(Object.keys(req.body).length === 0)
+            throw Error();
+    } catch(e) {
+        var err = {
+            "verb" : "POST",
+            "url" : "api/objects/",
+            "message" : "Not a JSON object"
+        };
+        res.json(err);
+        return;
+    }
+
+    var obj = req.body;
+    var uid = genUID();
+    obj.uid = uid;
+
+    db.addObject(obj);
+    //console.log(db.getObject(uid));
+    res.json(obj);
 });
 
 router.put('/objects/:uid', function(req, res) {
