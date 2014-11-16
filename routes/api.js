@@ -32,7 +32,7 @@ router.post('/objects', function(req, res) {
     var uid = genUID();
     obj.uid = uid;
 
-    db.addObject(uid, obj, function(err, obj) {
+    db.addObject(uid, obj, function(err, object) {
         if(err){
             var error = {
                 "verb" : "POST",
@@ -41,7 +41,7 @@ router.post('/objects', function(req, res) {
             };
             res.json(error);
         }else{
-            res.json(obj);
+            res.json(object);
         }
     });
     // db.getObject(uid, function(err, obj) {
