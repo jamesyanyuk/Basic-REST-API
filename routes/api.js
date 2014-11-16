@@ -1,6 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
+/* Use In-Memory Database */
+//var db = require('../lib/memdb');
+/* Use Remote PostgreSQL Database */
 var db = require('../lib/db');
 
 function genUID() {
@@ -29,14 +32,24 @@ router.post('/objects', function(req, res) {
     var uid = genUID();
     obj.uid = uid;
 
-    db.addObject(obj);
+    db.addObject(uid, obj, function(err, obj) {
+        if(err){
+            var error = {
+                "verb" : "POST",
+                "url" : "api/objects/",
+                "message" : "Database error"
+            };
+            res.json(error);
+        }else{
+            res.json(obj);
+        }
+    });
     // db.getObject(uid, function(err, obj) {
     //     if(err)
     //         console.log(err);
     //     else
     //         console.log(obj);
     // });
-    res.json(obj);
 });
 
 router.put('/objects/:uid', function(req, res) {
