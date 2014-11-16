@@ -107,7 +107,24 @@ router.get('/objects/:uid', function(req, res) {
 });
 
 router.get('/objects', function(req, res) {
-    res.json(db.uidList());
+    db.uidList(function(err, lst) {
+        if(err){
+            var error = {
+                "verb" : "GET",
+                "url" : "api/objects/",
+                "message" : "Database error"
+            };
+            res.json(error);
+        }else{
+            var arr = [];
+
+            lst.forEach(function(elem) {
+                arr.push({"url":"api/objects/"+elem.uid});
+            });
+
+            res.json(arr);
+        }
+    });
 });
 
 router.delete('/objects/:uid', function(req, res) {
