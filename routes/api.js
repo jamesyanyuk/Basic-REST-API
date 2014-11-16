@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 
 /* Use In-Memory Database */
-var db = require('../lib/memdb');
+//var db = require('../lib/memdb');
 /* Use Remote PostgreSQL Database */
-//var db = require('../lib/db');
+var db = require('../lib/db');
 
 function genUID() {
     var uid = Math.random().toString().substr(2, 6);
