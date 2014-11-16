@@ -2,9 +2,9 @@ var express = require('express');
 var router = express.Router();
 
 /* Use In-Memory Database */
-//var db = require('../lib/memdb');
+var db = require('../lib/memdb');
 /* Use Remote PostgreSQL Database */
-var db = require('../lib/db');
+//var db = require('../lib/db');
 
 function genUID() {
     var uid = Math.random().toString().substr(2, 6);
@@ -44,12 +44,6 @@ router.post('/objects', function(req, res) {
             res.json(object);
         }
     });
-    // db.getObject(uid, function(err, obj) {
-    //     if(err)
-    //         console.log(err);
-    //     else
-    //         console.log(obj);
-    // });
 });
 
 router.put('/objects/:uid', function(req, res) {
@@ -68,7 +62,7 @@ router.put('/objects/:uid', function(req, res) {
         return;
     }
 
-    db.updateObject(req.param('uid'), req.body, function(err, obj) {
+    db.updateObject(req.param('uid'), req.body, function(err, updated) {
         if(err){
             var error = {
                 "verb" : "PUT",
@@ -77,7 +71,16 @@ router.put('/objects/:uid', function(req, res) {
             };
             res.json(error);
         }else{
-            res.json(obj);
+            if(!updated){
+                var error = {
+                    "verb" : "GET",
+                    "url" : "api/objects/<uid>",
+                    "message" : "Object with specified UID doesn't exist"
+                };
+                res.json(error);
+                return;
+            }
+            res.json(req.body);
         }
     });
 });
@@ -101,7 +104,7 @@ router.get('/objects/:uid', function(req, res) {
                 res.json(error);
                 return;
             }
-            res.json(obj);
+            res.json(obj.object);
         }
     });
 });
