@@ -1,7 +1,6 @@
 var express = require('express');
 var router = express.Router();
 
-var scientist = require('../lib/scientist');
 var db = require('../lib/db');
 
 function genUID() {
