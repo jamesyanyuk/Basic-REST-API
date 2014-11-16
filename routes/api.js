@@ -31,12 +31,12 @@ router.post('/objects', function(req, res) {
     obj.uid = uid;
 
     db.addObject(obj);
-    db.getObject(uid, function(err, obj) {
-        if(err)
-            console.log(err);
-        else
-            console.log(obj);
-    });
+    // db.getObject(uid, function(err, obj) {
+    //     if(err)
+    //         console.log(err);
+    //     else
+    //         console.log(obj);
+    // });
     res.json(obj);
 });
 
@@ -85,8 +85,13 @@ router.get('/objects/:uid', function(req, res) {
     });
 });
 
-router.delete('/objects/:uid', function(req, res) {
+router.get('/objects', function(req, res) {
+    res.json(db.uidList());
+});
 
+router.delete('/objects/:uid', function(req, res) {
+    db.removeObject(req.param('uid'));
+    res.end();
 });
 
 module.exports = router;
