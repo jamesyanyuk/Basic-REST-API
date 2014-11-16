@@ -18,7 +18,10 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 // Log errors to console and leave error handling to routes
-
+app.use(function((err, req, res, next) {
+    console.log(err);
+    next();
+});
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
