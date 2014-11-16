@@ -88,10 +88,19 @@ router.get('/objects/:uid', function(req, res) {
             var error = {
                 "verb" : "GET",
                 "url" : "api/objects/<uid>",
-                "message" : "Object with specified UID doesn't exist"
+                "message" : "Database error"
             };
             res.json(error);
         }else{
+            if(!obj){
+                var error = {
+                    "verb" : "GET",
+                    "url" : "api/objects/<uid>",
+                    "message" : "Object with specified UID doesn't exist"
+                };
+                res.json(error);
+                return;
+            }
             res.json(obj);
         }
     });
