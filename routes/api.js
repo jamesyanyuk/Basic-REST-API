@@ -1,10 +1,9 @@
 var express = require('express');
 var router = express.Router();
 
-/* Use In-Memory Database */
-//var db = require('../lib/memdb');
-/* Use Remote PostgreSQL Database */
-var db = require('../lib/db');
+/* Use DB_TYPE environment variable to set database type
+        (in-memory or PostgreSQL)                        */
+var db = require('../lib/' + (process.env.DB_TYPE || 'db'));
 
 function genUID() {
     var uid = Math.random().toString().substr(2, 6);
