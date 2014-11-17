@@ -30,7 +30,7 @@ router.post('/objects', function(req, res) {
     var obj = req.body;
     var uid = genUID();
     obj.uid = uid;
-    
+
     db.addObject(uid, obj, function(err, object) {
         if(err){
             var error = {
@@ -66,13 +66,13 @@ router.put('/objects/:uid', function(req, res) {
             var error = {
                 "verb" : "PUT",
                 "url" : "api/objects/<uid>",
-                "message" : "Object with specified UID doesn't exist"
+                "message" : "Database error"
             };
             res.json(error);
         }else{
             if(!updated){
                 var error = {
-                    "verb" : "GET",
+                    "verb" : "PUT",
                     "url" : "api/objects/<uid>",
                     "message" : "Object with specified UID doesn't exist"
                 };
