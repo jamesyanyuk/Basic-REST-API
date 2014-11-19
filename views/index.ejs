@@ -6,6 +6,14 @@
   </head>
   <body>
     <h1><%= title %></h1>
-    <p><%= message %></p>
+    <ul style="list-style-type: square">
+        <li>HTTP POST to the "api/objects" URL creates an object.</li>
+        <li>HTTP PUT to the "api/objects/&lt;uid&gt;" URL updates the object.</li>
+        <li>HTTP GET to the "api/objects/&lt;uid&gt;" URL returns the full JSON object.</li>
+        <li>HTTP GET to the "api/objects/" URL returns a list of unique identifiers of all JSON objects.</li>
+        <li>HTTP DELETE to the "api/objects/&lt;uid&gt;" URL deletes the JSON object.</li>
+    </ul>
+    <p>Note: When posting JSON objects, Content-Type must be application/json.</p>
+    <b>Built by James Yanyuk in Node.js.</b>
   </body>
 </html>
