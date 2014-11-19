@@ -5,12 +5,22 @@ var router = express.Router();
         (in-memory or PostgreSQL)                        */
 var db = require('../lib/' + (process.env.DB_TYPE || 'db'));
 
-function genUID() {
+// Returns randomly-generated uid in callback function
+function genUID(cb) {
     var uid = Math.random().toString().substr(2, 6);
     // Check to see that UID doesn't already exist
-    return uid;
+    db.getObject(uid, function(err, obj) {
+        if(!obj || err)
+            cb(uid);
+        else
+            genUID();
+    });
 }
 
+/*
+    | HTTP POST
+    | to the "api/objects" URL creates an object.
+*/
 router.post('/objects', function(req, res) {
     // Check if received data is a JSON object
     try {
@@ -27,24 +37,33 @@ router.post('/objects', function(req, res) {
         return;
     }
 
+    // Retrieve JSON from request body
     var obj = req.body;
-    var uid = genUID();
-    obj.uid = uid;
 
-    db.addObject(uid, obj, function(err, object) {
-        if(err){
-            var error = {
-                "verb" : "POST",
-                "url" : "api/objects/",
-                "message" : "Database error"
-            };
-            res.json(error);
-        }else{
-            res.json(object);
-        }
+    genUID(function(resUID) {
+        var uid = resUID;
+        obj.uid = uid;
+
+        // Add new object with unique UID
+        db.addObject(uid, obj, function(err, object) {
+            if(err){
+                var error = {
+                    "verb" : "POST",
+                    "url" : "api/objects/",
+                    "message" : "Database error"
+                };
+                res.json(error);
+            }else{
+                res.json(object);
+            }
+        });
     });
 });
 
+/*
+    | HTTP PUT
+    | to the "api/objects/<uid>" URL updates the object.
+*/
 router.put('/objects/:uid', function(req, res) {
     // Check if received data is a JSON object
     try {
@@ -61,6 +80,8 @@ router.put('/objects/:uid', function(req, res) {
         return;
     }
 
+    // Update object with specified UID by replacing object held by that UID
+    // with object passed into the request body
     db.updateObject(req.param('uid'), req.body, function(err, updated) {
         if(err){
             var error = {
@@ -70,6 +91,8 @@ router.put('/objects/:uid', function(req, res) {
             };
             res.json(error);
         }else{
+            // If updateObject doesn't return an object, then requested object with
+            // specified UID must not exist
             if(!updated){
                 var error = {
                     "verb" : "PUT",
@@ -84,6 +107,10 @@ router.put('/objects/:uid', function(req, res) {
     });
 });
 
+/*
+    | HTTP GET
+    | to the "api/objects/<uid>" URL returns the full JSON object.
+*/
 router.get('/objects/:uid', function(req, res) {
     db.getObject(req.param('uid'), function(err, obj) {
         if(err){
@@ -94,6 +121,8 @@ router.get('/objects/:uid', function(req, res) {
             };
             res.json(error);
         }else{
+            // If getObject doesn't return an object within its callback,
+            // then requested object with specified UID must not exist
             if(!obj){
                 var error = {
                     "verb" : "GET",
@@ -108,6 +137,10 @@ router.get('/objects/:uid', function(req, res) {
     });
 });
 
+/*
+    | HTTP GET
+    | to the "api/objects/" URL returns a list of unique identifiers of all JSON objects.
+*/
 router.get('/objects', function(req, res) {
     db.uidList(function(err, lst) {
         if(err){
@@ -118,6 +151,8 @@ router.get('/objects', function(req, res) {
             };
             res.json(error);
         }else{
+            // Builds collection of JSON objects with unique identifiers for each object
+            // in the database
             var arr = [];
 
             lst.forEach(function(elem) {
@@ -129,6 +164,10 @@ router.get('/objects', function(req, res) {
     });
 });
 
+/*
+    | HTTP DELETE
+    | to the "api/objects/<uid>" URL deletes the JSON object.
+*/
 router.delete('/objects/:uid', function(req, res) {
     db.removeObject(req.param('uid'));
     res.end();
