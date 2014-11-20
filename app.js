@@ -16,12 +16,35 @@ app.set('view engine', 'ejs');
 
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
+
 app.use(bodyParser.json());
-// Log errors to console and leave error handling to routes
+// Handle any bodyParser errors
 app.use(function(err, req, res, next) {
-    console.log(err);
-    next();
+    if(err.message === 'invalid json' || err instanceof SyntaxError){
+        switch(req.method) {
+            case 'POST':
+                var err = {
+                    "verb" : "POST",
+                    "url" : "api/objects/",
+                    "message" : "Not a JSON object"
+                };
+                res.json(err);
+                break;
+            case 'PUT':
+                var err = {
+                    "verb" : "PUT",
+                    "url" : "api/objects/<uid>",
+                    "message" : "Not a JSON object"
+                };
+                res.json(err);
+                break;
+            default: break;
+        }
+    }else{
+        next(err);
+    }
 });
+
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));

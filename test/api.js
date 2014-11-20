@@ -41,12 +41,23 @@ describe('app', function() {
 
     it('POST test (should fail on invalid json input)', function(done) {
         request.post('http://localhost:'+port+'/api/objects').send(
-            '{}notjson'
+            '{}notjson['
         ).set('Content-Type', 'application/json').end(function(e, res) {
             expect(e).to.equal(null);
             expect(res.body.verb).to.equal('POST');
             expect(res.body.url).to.equal('api/objects/');
             expect(res.body.message).to.equal('Not a JSON object');
+            done();
+        });
+    });
+
+    // Test POST with {} JSON object (bug fixed)
+    it('POST test (should post new object) 1', function(done) {
+        request.post('http://localhost:'+port+'/api/objects').send(
+            '{}'
+        ).set('Content-Type', 'application/json').end(function(e, res) {
+            expect(e).to.equal(null);
+            expect(res.body.uid).to.not.equal(undefined);
             done();
         });
     });
@@ -60,6 +71,36 @@ describe('app', function() {
             expect(res.body.randKey1).to.equal('test_a');
             expect(res.body.randKey2).to.equal('test_b');
             done();
+        });
+    });
+
+    it('PUT test (should update object)', function(done) {
+        request.put('http://localhost:'+port+'/api/objects/000002').send(
+            '{ "randKey1":"test_a", "randKey2":"test_b" }'
+        ).set('Content-Type', 'application/json').end(function(e, res) {
+            expect(e).to.equal(null);
+            expect(res.body.uid).to.equal(undefined);
+            expect(res.body.randKey1).to.equal('test_a');
+            expect(res.body.randKey2).to.equal('test_b');
+            done();
+        });
+    });
+
+    it('PUT test (should update object holding different UID, and retain original UID)', function(done) {
+        request.put('http://localhost:'+port+'/api/objects/000003').send(
+            '{ "uid":"573782", "Test_k1":"Test_v1", "Test_k2":"Test_v2" }'
+        ).set('Content-Type', 'application/json').end(function(e, res) {
+            expect(e).to.equal(null);
+            expect(res.body.uid).to.equal('573782');
+            expect(res.body.Test_k1).to.equal('Test_v1');
+            expect(res.body.Test_k2).to.equal('Test_v2');
+            request.get('http://localhost:'+port+'/api/objects/000003').end(function(e, res) {
+                expect(e).to.equal(null);
+                expect(res.body.uid).to.equal('573782');
+                expect(res.body.Test_k1).to.equal('Test_v1');
+                expect(res.body.Test_k2).to.equal('Test_v2');
+                done();
+            });
         });
     });
 

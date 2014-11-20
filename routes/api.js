@@ -22,22 +22,6 @@ function genUID(cb) {
     | to the "api/objects" URL creates an object.
 */
 router.post('/objects', function(req, res) {
-    // Check if received data is a JSON object
-    try {
-        JSON.parse(JSON.stringify(req.body));
-        if(Object.keys(req.body).length === 0)
-            throw Error();
-    } catch(e) {
-        var err = {
-            "verb" : "POST",
-            "url" : "api/objects/",
-            "message" : "Not a JSON object"
-        };
-        res.json(err);
-        return;
-    }
-
-    // Retrieve JSON from request body
     var obj = req.body;
 
     genUID(function(resUID) {
@@ -65,21 +49,6 @@ router.post('/objects', function(req, res) {
     | to the "api/objects/<uid>" URL updates the object.
 */
 router.put('/objects/:uid', function(req, res) {
-    // Check if received data is a JSON object
-    try {
-        JSON.parse(JSON.stringify(req.body));
-        if(Object.keys(req.body).length === 0)
-            throw Error();
-    } catch(e) {
-        var err = {
-            "verb" : "PUT",
-            "url" : "api/objects/<uid>",
-            "message" : "Not a JSON object"
-        };
-        res.json(err);
-        return;
-    }
-
     // Update object with specified UID by replacing object held by that UID
     // with object passed into the request body
     db.updateObject(req.param('uid'), req.body, function(err, updated) {
