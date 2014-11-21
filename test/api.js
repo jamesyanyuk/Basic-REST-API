@@ -67,7 +67,6 @@ describe('app', function() {
             '{ "uid":"000002", "randKey1":"test_a", "randKey2":"test_b" }'
         ).set('Content-Type', 'application/json').end(function(e, res) {
             expect(e).to.equal(null);
-            console.log(res.body);
             expect(res.body.uid).to.equal('000002');
             expect(res.body.randKey1).to.equal('test_a');
             expect(res.body.randKey2).to.equal('test_b');
