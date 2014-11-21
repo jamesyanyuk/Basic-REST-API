@@ -51,7 +51,10 @@ router.post('/objects', function(req, res) {
 router.put('/objects/:uid', function(req, res) {
     // Update object with specified UID by replacing object held by that UID
     // with object passed into the request body
-    db.updateObject(req.param('uid'), req.body, function(err, updated) {
+    var obj = req.body;
+    obj.uid = req.param('uid');
+
+    db.updateObject(req.param('uid'), obj, function(err, updated, object) {
         if(err){
             var error = {
                 "verb" : "PUT",
@@ -71,7 +74,7 @@ router.put('/objects/:uid', function(req, res) {
                 res.json(error);
                 return;
             }
-            res.json(req.body);
+            res.json(object);
         }
     });
 });

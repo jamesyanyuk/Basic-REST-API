@@ -52,7 +52,7 @@ describe('app', function() {
     });
 
     // Test POST with {} JSON object (bug fixed)
-    it('POST test (should post new object) 1', function(done) {
+    it('POST test (should post new object) 3', function(done) {
         request.post('http://localhost:'+port+'/api/objects').send(
             '{}'
         ).set('Content-Type', 'application/json').end(function(e, res) {
@@ -62,9 +62,22 @@ describe('app', function() {
         });
     });
 
-    it('PUT test (should update object)', function(done) {
+    it('PUT test (should update object) 1', function(done) {
         request.put('http://localhost:'+port+'/api/objects/000002').send(
             '{ "uid":"000002", "randKey1":"test_a", "randKey2":"test_b" }'
+        ).set('Content-Type', 'application/json').end(function(e, res) {
+            expect(e).to.equal(null);
+            console.log(res.body);
+            expect(res.body.uid).to.equal('000002');
+            expect(res.body.randKey1).to.equal('test_a');
+            expect(res.body.randKey2).to.equal('test_b');
+            done();
+        });
+    });
+
+    it('PUT test (should update object) 2', function(done) {
+        request.put('http://localhost:'+port+'/api/objects/000002').send(
+            '{ "randKey1":"test_a", "randKey2":"test_b" }'
         ).set('Content-Type', 'application/json').end(function(e, res) {
             expect(e).to.equal(null);
             expect(res.body.uid).to.equal('000002');
@@ -73,30 +86,18 @@ describe('app', function() {
             done();
         });
     });
-
-    it('PUT test (should update object)', function(done) {
-        request.put('http://localhost:'+port+'/api/objects/000002').send(
-            '{ "randKey1":"test_a", "randKey2":"test_b" }'
-        ).set('Content-Type', 'application/json').end(function(e, res) {
-            expect(e).to.equal(null);
-            expect(res.body.uid).to.equal(undefined);
-            expect(res.body.randKey1).to.equal('test_a');
-            expect(res.body.randKey2).to.equal('test_b');
-            done();
-        });
-    });
-
+// here <------
     it('PUT test (should update object holding different UID, and retain original UID)', function(done) {
         request.put('http://localhost:'+port+'/api/objects/000003').send(
             '{ "uid":"573782", "Test_k1":"Test_v1", "Test_k2":"Test_v2" }'
         ).set('Content-Type', 'application/json').end(function(e, res) {
             expect(e).to.equal(null);
-            expect(res.body.uid).to.equal('573782');
+            expect(res.body.uid).to.equal('000003');
             expect(res.body.Test_k1).to.equal('Test_v1');
             expect(res.body.Test_k2).to.equal('Test_v2');
             request.get('http://localhost:'+port+'/api/objects/000003').end(function(e, res) {
                 expect(e).to.equal(null);
-                expect(res.body.uid).to.equal('573782');
+                expect(res.body.uid).to.equal('000003');
                 expect(res.body.Test_k1).to.equal('Test_v1');
                 expect(res.body.Test_k2).to.equal('Test_v2');
                 done();
